@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="nestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#3B82F6" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="100%" stop-color="#93C5FD" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer glowing background circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#nestGrad)" />
+  
+  <!-- Speech bubble / Nest arc shape -->
+  <path d="M25 42C25 29.8497 34.8497 20 47 20C59.1503 20 69 29.8497 69 42C69 48.2144 66.4173 53.8248 62.2476 57.8383L65.5 68L55.8 64.9C53.0768 66.246 50.1264 67 47 67C34.8497 67 25 57.1503 25 42Z" fill="white" fill-opacity="0.95" />
+  
+  <!-- Inner Nest Wings / Language Waves -->
+  <path d="M35 44C35 44 42 36 50 44C58 52 65 44 65 44" stroke="url(#nestGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M40 50C40 50 45 45 50 50C55 55 60 50 60 50" stroke="url(#nestGrad)" stroke-width="3.5" stroke-linecap="round" opacity="0.75"/>
+</svg>
