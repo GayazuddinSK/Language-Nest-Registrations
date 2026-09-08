@@ -220,31 +220,39 @@ async function addRegistration(data) {
 
   const client = getSheetsClient();
 
-  if (client) {
-    try {
-      const { sheets, sheetId } = client;
-      await sheets.spreadsheets.values.append({
-        spreadsheetId: sheetId,
-        range: 'Sheet1!A:I',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: [[
-            newRecord.timestamp,
-            newRecord.fullName,
-            newRecord.branch,
-            newRecord.year,
-            newRecord.phone,
-            newRecord.email,
-            newRecord.paymentMode,
-            newRecord.paymentDetails,
-            newRecord.status
-          ]]
-        }
-      });
-      console.log(`✅ Appended new registration for ${newRecord.fullName} to Google Sheets!`);
-    } catch (err) {
-      console.error("⚠️ Failed to append to Google Sheets, using local store fallback:", err.message);
-    }
+  if (!client) {
+    const error = new Error("Google Sheets server connection is inactive. Check environment variables (GOOGLE_SHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_PRIVATE_KEY).");
+    error.status = 500;
+    throw error;
+  }
+
+  const { sheets, sheetId } = client;
+  try {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: sheetId,
+      range: 'Sheet1!A:I',
+      valueInputOption: 'USER_ENTERED',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: {
+        values: [[
+          newRecord.timestamp,
+          newRecord.fullName,
+          newRecord.branch,
+          newRecord.year,
+          newRecord.phone,
+          newRecord.email,
+          newRecord.paymentMode,
+          newRecord.paymentDetails,
+          newRecord.status
+        ]]
+      }
+    });
+    console.log(`✅ Appended new registration for ${newRecord.fullName} to Google Sheets!`);
+  } catch (err) {
+    console.error("❌ Google Sheets append error:", err.message);
+    const error = new Error(`Google Sheets error: ${err.message}`);
+    error.status = 500;
+    throw error;
   }
 
   ensureLocalFileExists();
