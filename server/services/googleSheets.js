@@ -33,21 +33,25 @@ function cleanPrivateKey(rawKey) {
   if (!rawKey) return null;
   let key = rawKey.trim();
 
-  // Strip wrapping quotes (single, double, backticks)
-  if ((key.startsWith('"') && key.endsWith('"')) || 
-      (key.startsWith("'") && key.endsWith("'")) || 
-      (key.startsWith('`') && key.endsWith('`'))) {
-    key = key.slice(1, -1).trim();
+  // Strip all leading/trailing quotes or backslashes
+  key = key.replace(/^["'`\\]+|["'`\\]+$/g, '').trim();
+
+  // Replace literal '\n' or '\\n' or multiline escapes with actual newline
+  key = key.replace(/\\+n/g, '\n');
+
+  // Replace literal '\r' with empty
+  key = key.replace(/\r/g, '');
+
+  // Ensure clean header & footer linebreaks
+  if (key.includes('-----BEGIN PRIVATE KEY-----') && !key.startsWith('-----BEGIN PRIVATE KEY-----\n')) {
+    key = key.replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n');
+  }
+  if (key.includes('-----END PRIVATE KEY-----') && !key.includes('\n-----END PRIVATE KEY-----')) {
+    key = key.replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
   }
 
-  // Handle escaped quotes inside string
-  key = key.replace(/\\"/g, '"').replace(/\\'/g, "'");
-
-  // Handle double-escaped or single-escaped newlines
-  key = key.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n');
-
-  // Strip carriage returns
-  key = key.replace(/\r/g, '');
+  // Ensure clean lines
+  key = key.split('\n').map(line => line.trim()).filter(Boolean).join('\n');
 
   return key;
 }
