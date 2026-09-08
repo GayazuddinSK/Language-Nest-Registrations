@@ -33,8 +33,17 @@ function cleanPrivateKey(rawKey) {
   if (!rawKey) return null;
   let key = rawKey.trim();
 
-  // Strip all leading/trailing quotes or backslashes
-  key = key.replace(/^["'`\\]+|["'`\\]+$/g, '').trim();
+  // If rawKey contains JSON object or '"private_key":', extract the exact PEM key block!
+  if (key.includes('-----BEGIN PRIVATE KEY-----')) {
+    const startIdx = key.indexOf('-----BEGIN PRIVATE KEY-----');
+    const endStr = '-----END PRIVATE KEY-----';
+    const endIdx = key.indexOf(endStr);
+    if (endIdx !== -1) {
+      key = key.substring(startIdx, endIdx + endStr.length);
+    } else {
+      key = key.substring(startIdx);
+    }
+  }
 
   // Replace literal '\n' or '\\n' or multiline escapes with actual newline
   key = key.replace(/\\+n/g, '\n');
@@ -42,13 +51,8 @@ function cleanPrivateKey(rawKey) {
   // Replace literal '\r' with empty
   key = key.replace(/\r/g, '');
 
-  // Ensure clean header & footer linebreaks
-  if (key.includes('-----BEGIN PRIVATE KEY-----') && !key.startsWith('-----BEGIN PRIVATE KEY-----\n')) {
-    key = key.replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n');
-  }
-  if (key.includes('-----END PRIVATE KEY-----') && !key.includes('\n-----END PRIVATE KEY-----')) {
-    key = key.replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
-  }
+  // Strip wrapping quotes or trailing commas/slashes if any
+  key = key.replace(/^["'`\\]+|["'`\\,]+$/g, '').trim();
 
   // Ensure clean lines
   key = key.split('\n').map(line => line.trim()).filter(Boolean).join('\n');
