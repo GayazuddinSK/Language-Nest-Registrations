@@ -29,24 +29,31 @@ function extractSheetId(raw) {
   return trimmed;
 }
 
+function cleanPrivateKey(rawKey) {
+  if (!rawKey) return null;
+  let key = rawKey.trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1).trim();
+  }
+  if (key.includes('\\n')) {
+    key = key.replace(/\\n/g, '\n');
+  }
+  return key;
+}
+
 /**
  * Gets a configured Google Sheets API client if env vars exist
  */
 function getSheetsClient() {
   let sheetId = extractSheetId(process.env.GOOGLE_SHEET_ID);
-  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  let privateKey = process.env.GOOGLE_PRIVATE_KEY;
+  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL.trim() : null;
+  let privateKey = cleanPrivateKey(process.env.GOOGLE_PRIVATE_KEY);
 
-  if (!sheetId || !clientEmail || !privateKey || privateKey.trim() === '') {
+  if (!sheetId || !clientEmail || !privateKey) {
     return null; // Credentials incomplete, fallback to local store
   }
 
   try {
-    // Unescape newlines in env private key string if needed
-    if (privateKey.includes('\\n')) {
-      privateKey = privateKey.replace(/\\n/g, '\n');
-    }
-
     const auth = new google.auth.JWT({
       email: clientEmail,
       key: privateKey,
@@ -266,5 +273,6 @@ async function addRegistration(data) {
 module.exports = {
   initializeSheetHeaders,
   getAllRegistrations,
-  addRegistration
+  addRegistration,
+  getSheetsClient
 };

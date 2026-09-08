@@ -3,7 +3,7 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
-const { initializeSheetHeaders, getAllRegistrations, addRegistration } = require('./services/googleSheets');
+const { initializeSheetHeaders, getAllRegistrations, addRegistration, getSheetsClient } = require('./services/googleSheets');
 const { getConfig, updateConfig } = require('./services/configStore');
 
 const app = express();
@@ -70,7 +70,13 @@ const ALLOWED_YEARS = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
  * Health check endpoint
  */
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  const client = getSheetsClient();
+  res.json({
+    status: 'ok',
+    googleSheetsConnected: !!client,
+    sheetId: client ? client.sheetId : null,
+    timestamp: new Date().toISOString()
+  });
 });
 
 /**
