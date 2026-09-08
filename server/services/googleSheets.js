@@ -297,5 +297,6 @@ module.exports = {
   initializeSheetHeaders,
   getAllRegistrations,
   addRegistration,
-  getSheetsClient
+  getSheetsClient,
+  cleanPrivateKey
 };
