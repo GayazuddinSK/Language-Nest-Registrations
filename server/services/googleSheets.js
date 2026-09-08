@@ -32,12 +32,23 @@ function extractSheetId(raw) {
 function cleanPrivateKey(rawKey) {
   if (!rawKey) return null;
   let key = rawKey.trim();
-  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+
+  // Strip wrapping quotes (single, double, backticks)
+  if ((key.startsWith('"') && key.endsWith('"')) || 
+      (key.startsWith("'") && key.endsWith("'")) || 
+      (key.startsWith('`') && key.endsWith('`'))) {
     key = key.slice(1, -1).trim();
   }
-  if (key.includes('\\n')) {
-    key = key.replace(/\\n/g, '\n');
-  }
+
+  // Handle escaped quotes inside string
+  key = key.replace(/\\"/g, '"').replace(/\\'/g, "'");
+
+  // Handle double-escaped or single-escaped newlines
+  key = key.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n');
+
+  // Strip carriage returns
+  key = key.replace(/\r/g, '');
+
   return key;
 }
 

@@ -1,13 +1,13 @@
 const https = require('https');
 
 const postData = JSON.stringify({
-  fullName: "Live Test Student",
-  branch: "CSE",
-  year: "1st Year",
-  phone: "8877665544",
-  email: "livetest@srkr.ac.in",
-  paymentMode: "Online",
-  paymentDetails: "UTR9988776655",
+  fullName: "Vercel Live Student",
+  branch: "ECE",
+  year: "2nd Year",
+  phone: "9123412345",
+  email: "vercellive@srkr.ac.in",
+  paymentMode: "Offline",
+  paymentDetails: "Revanth",
   agreement: true
 });
 
