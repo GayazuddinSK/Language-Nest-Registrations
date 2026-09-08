@@ -80,57 +80,6 @@ app.get('/api/health', (req, res) => {
 });
 
 /**
- * Diagnostic endpoint for Google Private Key validation on Render
- */
-app.get('/api/debug-key', async (req, res) => {
-  const rawKey = process.env.GOOGLE_PRIVATE_KEY;
-  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-
-  if (!rawKey || !clientEmail || !sheetId) {
-    return res.status(400).json({
-      success: false,
-      message: "Environment variables missing on server",
-      hasKey: !!rawKey,
-      hasEmail: !!clientEmail,
-      hasSheetId: !!sheetId
-    });
-  }
-
-  const { google } = require('googleapis');
-  const { cleanPrivateKey } = require('./services/googleSheets');
-  const cleanedKey = cleanPrivateKey(rawKey);
-
-  try {
-    const auth = new google.auth.JWT({
-      email: clientEmail.trim(),
-      key: cleanedKey,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-
-    await auth.authorize();
-    return res.json({
-      success: true,
-      message: "Google Sheets OAuth JWT authorization successful!",
-      keyLength: rawKey.length,
-      cleanedKeyLength: cleanedKey.length,
-      cleanedKeyLines: cleanedKey.split('\n').length
-    });
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      error: err.message,
-      keyLength: rawKey ? rawKey.length : 0,
-      cleanedKeyLength: cleanedKey ? cleanedKey.length : 0,
-      rawKeyStart: rawKey ? rawKey.substring(0, 35) : null,
-      rawKeyEnd: rawKey ? rawKey.substring(rawKey.length - 35) : null,
-      cleanedKeyStart: cleanedKey ? cleanedKey.substring(0, 35) : null,
-      cleanedKeyEnd: cleanedKey ? cleanedKey.substring(cleanedKey.length - 35) : null
-    });
-  }
-});
-
-/**
  * Public config endpoint for UPI & WhatsApp details
  */
 app.get('/api/config', (req, res) => {
